@@ -5,11 +5,23 @@ import { customElement, state } from 'lit/decorators.js';
 @customElement('flashcards-app')
 export class FlashcardsApp extends LitElement {
   static styles = css`
-    /* einfache Styles */
     :host {
       display: block;
       padding: 1rem;
       font-family: sans-serif;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background: #f4f4f4;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      aspect-ratio: 16/9;
     }
   `;
 
@@ -28,7 +40,6 @@ export class FlashcardsApp extends LitElement {
     try {
       const res = await fetch('https://fh-salzburg-3e27a-default-rtdb.europe-west1.firebasedatabase.app/flashcards.json');
       const data = await res.json();
-      // Falls das JSON ein Objekt ist, in ein Array umwandeln
       this.flashcards = Object.values(data);
     } catch (e) {
       console.error('Fehler beim Laden der Flashcards:', e);
@@ -44,11 +55,11 @@ export class FlashcardsApp extends LitElement {
 
     return html`
       <h2>Flashcards</h2>
-      <ul>
-        ${this.flashcards.map((card, index) => html`
-          <li><strong>${index + 1}.</strong> ${card.question}</li>
-        `)}
-      </ul>
+      ${this.flashcards.map((card, index) => html`
+        <div class="card">
+          <p><strong>Frage ${index + 1}:</strong> ${card.question}</p>
+        </div>
+      `)}
     `;
   }
 }
