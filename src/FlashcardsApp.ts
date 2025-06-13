@@ -16,17 +16,46 @@ export class FlashcardsApp extends LitElement {
     }
 
     .card {
-      background: #f4f4f4;
+      background-color: #f4f4f4;
+      color: #000;
       padding: 1rem;
       margin-bottom: 1rem;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      aspect-ratio: 16/9;
+    }
+
+    .choice {
+      margin: 0.25rem 0;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .correct {
+      background-color: #d4edda;
+      color: #155724;
+      font-weight: bold;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .card {
+        background-color: #333;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+      }
+
+      .correct {
+        background-color: #204d35;
+        color: #b2f5cb;
+      }
     }
   `;
 
   @state()
-  private flashcards: any[] = [];
+  private flashcards: {
+    question: string;
+    choices: string[];
+    correctIndex: number;
+  }[] = [];
 
   @state()
   private isLoading = true;
@@ -54,10 +83,17 @@ export class FlashcardsApp extends LitElement {
     }
 
     return html`
-      <h2>Flashcards</h2>
+      <h2>Kartei</h2>
       ${this.flashcards.map((card, index) => html`
         <div class="card">
-          <p><strong>Frage ${index + 1}:</strong> ${card.question}</p>
+          <p><strong>Question ${index + 1}:</strong> ${card.question}</p>
+          <ul>
+            ${card.choices.map((choice, i) => html`
+              <li class="choice ${i === card.correctIndex ? 'correct' : ''}">
+                ${choice}
+              </li>
+            `)}
+          </ul>
         </div>
       `)}
     `;
