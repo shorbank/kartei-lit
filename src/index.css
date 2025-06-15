@@ -5,6 +5,7 @@
   --card-text: #000;
   --correct-bg: #d4edda;
   --correct-text: #155724;
+  --icon-color: #213547;
 
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -23,6 +24,7 @@
   --card-text: #fff;
   --correct-bg: #204d35;
   --correct-text: #b2f5cb;
+  --icon-color: #ffffff;
 }
 
 body {
