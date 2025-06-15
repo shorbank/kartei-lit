@@ -1,4 +1,3 @@
-// src/FlashcardsApp.ts
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
@@ -15,9 +14,17 @@ export class FlashcardsApp extends LitElement {
       margin-bottom: 1rem;
     }
 
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
     .card {
-      background-color: #f4f4f4;
-      color: #000;
+      background-color: var(--card-bg, #f4f4f4);
+      color: var(--card-text, #000);
       padding: 1rem;
       margin-bottom: 1rem;
       border-radius: 8px;
@@ -31,22 +38,9 @@ export class FlashcardsApp extends LitElement {
     }
 
     .correct {
-      background-color: #d4edda;
-      color: #155724;
+      background-color: var(--correct-bg, #d4edda);
+      color: var(--correct-text, #155724);
       font-weight: bold;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      .card {
-        background-color: #333;
-        color: #fff;
-        box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
-      }
-
-      .correct {
-        background-color: #204d35;
-        color: #b2f5cb;
-      }
     }
   `;
 
@@ -65,6 +59,13 @@ export class FlashcardsApp extends LitElement {
     this.loadFlashcards();
   }
 
+  firstUpdated() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
   async loadFlashcards() {
     try {
       const res = await fetch('https://fh-salzburg-3e27a-default-rtdb.europe-west1.firebasedatabase.app/flashcards.json');
@@ -77,6 +78,17 @@ export class FlashcardsApp extends LitElement {
     }
   }
 
+  toggleTheme(e: Event) {
+    const checked = (e.target as HTMLInputElement).checked;
+    const theme = checked ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }
+
+  isDarkMode() {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
+  }
+
   render() {
     if (this.isLoading) {
       return html`<p>Lade Flashcards…</p>`;
@@ -84,6 +96,11 @@ export class FlashcardsApp extends LitElement {
 
     return html`
       <h2>Kartei</h2>
+      <label>
+        <input type="checkbox" @change=${this.toggleTheme} ?checked=${this.isDarkMode()} />
+        Dark Mode
+      </label>
+
       ${this.flashcards.map((card, index) => html`
         <div class="card">
           <p><strong>Question ${index + 1}:</strong> ${card.question}</p>
