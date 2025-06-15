@@ -14,17 +14,52 @@ export class FlashcardsApp extends LitElement {
       margin-bottom: 1rem;
     }
 
-    label {
+    .toggle-switch {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       margin-bottom: 1rem;
       font-size: 0.9rem;
+      user-select: none;
+    }
+
+    .toggle-switch input {
+      display: none;
+    }
+
+    .toggle-switch .slider {
+      width: 40px;
+      height: 20px;
+      background-color: #ccc;
+      border-radius: 20px;
+      position: relative;
+      transition: background-color 0.3s;
+      cursor: pointer;
+    }
+
+    .toggle-switch .slider::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      height: 16px;
+      width: 16px;
+      background-color: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch input:checked + .slider {
+      background-color: #4f46e5;
+    }
+
+    .toggle-switch input:checked + .slider::before {
+      transform: translateX(20px);
     }
 
     .card {
-      background-color: var(--card-bg, #f4f4f4);
-      color: var(--card-text, #000);
+      background-color: var(--card-bg);
+      color: var(--card-text);
       padding: 1rem;
       margin-bottom: 1rem;
       border-radius: 8px;
@@ -38,8 +73,8 @@ export class FlashcardsApp extends LitElement {
     }
 
     .correct {
-      background-color: var(--correct-bg, #d4edda);
-      color: var(--correct-text, #155724);
+      background-color: var(--correct-bg);
+      color: var(--correct-text);
       font-weight: bold;
     }
   `;
@@ -70,7 +105,7 @@ export class FlashcardsApp extends LitElement {
     try {
       const res = await fetch('https://fh-salzburg-3e27a-default-rtdb.europe-west1.firebasedatabase.app/flashcards.json');
       const data = await res.json();
-      this.flashcards = Object.values(data);
+      this.flashcards = data ? Object.values(data) : [];
     } catch (e) {
       console.error('Fehler beim Laden der Flashcards:', e);
     } finally {
@@ -96,9 +131,11 @@ export class FlashcardsApp extends LitElement {
 
     return html`
       <h2>Kartei</h2>
-      <label>
+
+      <label class="toggle-switch">
         <input type="checkbox" @change=${this.toggleTheme} ?checked=${this.isDarkMode()} />
-        Dark Mode
+        <span class="slider"></span>
+        <span>Dark Mode</span>
       </label>
 
       ${this.flashcards.map((card, index) => html`
