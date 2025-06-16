@@ -8,13 +8,15 @@ export class FlashcardsApp extends LitElement {
       display: block;
       padding: 1rem;
       font-family: sans-serif;
+      width: 100dvw;
+      heigt: 100dvh;
     }
 
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 1rem
+      padding-bottom: 1rem;
     }
 
     h2 {
@@ -94,12 +96,34 @@ export class FlashcardsApp extends LitElement {
       margin: 0.25rem 0;
       padding: 0.5rem;
       border-radius: 4px;
+      cursor: pointer;
     }
 
     .correct {
       background-color: var(--correct-bg);
       color: var(--correct-text);
       font-weight: bold;
+    }
+
+    .wrong {
+      background-color: #f8d7da;
+      color: #721c24;
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      background-color: #4f46e5;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #4338ca;
     }
   `;
 
@@ -110,11 +134,10 @@ export class FlashcardsApp extends LitElement {
     correctIndex: number;
   }[] = [];
 
-  @state()
-  private isLoading = true;
-
-  @state()
-  private showSettings = false;
+  @state() private isLoading = true;
+  @state() private showSettings = false;
+  @state() private currentIndex = 0;
+  @state() private selectedIndex: number | null = null;
 
   connectedCallback() {
     super.connectedCallback();
@@ -145,6 +168,7 @@ export class FlashcardsApp extends LitElement {
     const theme = checked ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
+    this.requestUpdate();
   }
 
   isDarkMode() {
@@ -153,6 +177,16 @@ export class FlashcardsApp extends LitElement {
 
   toggleSettings() {
     this.showSettings = !this.showSettings;
+  }
+
+  handleAnswer(index: number) {
+    if (this.selectedIndex !== null) return;
+    this.selectedIndex = index;
+  }
+
+  nextCard() {
+    this.currentIndex++;
+    this.selectedIndex = null;
   }
 
   render() {
@@ -172,29 +206,45 @@ export class FlashcardsApp extends LitElement {
 
       ${this.showSettings ? html`
         <div class="card">
-          <p><strong>Settigns:</strong></p>
-          
+          <p><strong>Settings:</strong></p>
           <label class="toggle-switch">
             <input type="checkbox" @change=${this.toggleTheme} ?checked=${this.isDarkMode()} />
             <span class="slider"></span>
             <span>Dark Mode</span>
           </label>
-
         </div>
       ` : null}
 
-      ${this.flashcards.map((card, index) => html`
-        <div class="card">
-          <p><strong>Question ${index + 1}:</strong> ${card.question}</p>
-          <ul>
-            ${card.choices.map((choice, i) => html`
-              <li class="choice ${i === card.correctIndex ? 'correct' : ''}">
-                ${choice}
-              </li>
-            `)}
-          </ul>
-        </div>
-      `)}
+      ${this.flashcards.length > 0 && this.currentIndex < this.flashcards.length ? (() => {
+        const card = this.flashcards[this.currentIndex];
+        return html`
+          <div class="card">
+            <p><strong>Question ${this.currentIndex + 1}:</strong> ${card.question}</p>
+            <ul>
+              ${card.choices.map((choice, i) => {
+                const isSelected = this.selectedIndex === i;
+                const isCorrect = i === card.correctIndex;
+                const isAnswered = this.selectedIndex !== null;
+
+                return html`
+                  <li
+                    class="choice ${isAnswered && isCorrect ? 'correct' : ''} ${isAnswered && isSelected && !isCorrect ? 'wrong' : ''}"
+                    @click=${() => this.handleAnswer(i)}
+                  >
+                    ${choice}
+                  </li>
+                `;
+              })}
+            </ul>
+
+            ${this.selectedIndex !== null && this.currentIndex < this.flashcards.length - 1
+              ? html`<button @click=${this.nextCard}>Next</button>`
+              : this.selectedIndex !== null
+              ? html`<p><strong>Finished! -- nice</strong></p>`
+              : null}
+          </div>
+        `;
+      })() : html`<p>Keine weiteren Fragen.</p>`}
     `;
   }
 }
