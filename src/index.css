@@ -2,6 +2,7 @@
   --text-color: #213547;
   --bg-color: #ffffff;
   --card-bg: #f4f4f4;
+  --choice-bg: #0000000d;
   --card-text: #000;
   --correct-bg: #d4edda;
   --correct-text: #155724;
@@ -21,6 +22,7 @@
   --text-color: rgba(255, 255, 255, 0.87);
   --bg-color: #242424;
   --card-bg: #333;
+  --choice-bg: #0000000d;
   --card-text: #fff;
   --correct-bg: #204d35;
   --correct-text: #b2f5cb;
@@ -58,7 +60,7 @@ a:hover {
   width: 100%;
   padding: 0.75rem 1rem;
   font-size: 1rem;
-  background-color: var(--card-bg);
+  background-color: var(--choice-bg);
   color: var(--card-text);
   border: 2px solid transparent;
   border-radius: 6px;
@@ -68,7 +70,7 @@ a:hover {
 }
 
 .choice-btn:hover:enabled {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .choice-btn.correct {
@@ -96,6 +98,3 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #4338ca;
-}
