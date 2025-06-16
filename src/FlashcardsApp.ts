@@ -115,6 +115,12 @@ export class FlashcardsApp extends LitElement {
       transition: transform 0.4s ease, opacity 0.4s ease;
     }
 
+    .card.blurred {
+      filter: blur(4px);
+      pointer-events: none;
+      user-select: none;
+    }
+
     .choices {
       display: flex;
       flex-direction: column;
@@ -293,7 +299,7 @@ export class FlashcardsApp extends LitElement {
 
           return html`
             <div
-              class="card"
+              class="card ${cardIndex !== this.currentCardIndex ? 'blurred' : ''}"
               style="
         --z: ${(cardIndex - this.currentCardIndex) * -1000}px;
         z-index: ${zIndex};
