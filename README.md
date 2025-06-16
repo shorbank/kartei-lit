@@ -11,8 +11,17 @@ npm run dev
 
 ## Features
 
-- Flashcards with front and back sides
-- Learn directly in the browser
+📚 One question at a time with multiple choices
+
+✅ Instant feedback (correct/wrong) on selection
+
+➡️ Smooth transition to the next card
+
+🌓 Toggleable dark mode (stored in localStorage)
+
+⚙️ Modal-based settings overlay
+
+🎴 3D-stacked card layout using transform and perspective
 
 ## Tech Stack
 
