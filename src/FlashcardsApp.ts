@@ -92,23 +92,43 @@ export class FlashcardsApp extends LitElement {
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .choice {
-      margin: 0.25rem 0;
-      padding: 0.5rem;
-      border-radius: 4px;
-      cursor: pointer;
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
     }
 
-    .correct {
+    .choice-btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      background-color: var(--card-bg);
+      color: var(--card-text);
+      border: 2px solid transparent;
+      border-radius: 6px;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+
+    .choice-btn:hover:enabled {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .choice-btn.correct {
       background-color: var(--correct-bg);
       color: var(--correct-text);
       font-weight: bold;
+      border-color: var(--correct-text);
     }
 
-    .wrong {
+    .choice-btn.wrong {
       background-color: #f8d7da;
       color: #721c24;
       font-weight: bold;
+      border-color: #721c24;
     }
 
     button {
@@ -220,28 +240,33 @@ export class FlashcardsApp extends LitElement {
         return html`
           <div class="card">
             <p><strong>Question ${this.currentIndex + 1}:</strong> ${card.question}</p>
-            <ul>
+            <div class="choices">
               ${card.choices.map((choice, i) => {
                 const isSelected = this.selectedIndex === i;
                 const isCorrect = i === card.correctIndex;
                 const isAnswered = this.selectedIndex !== null;
-                const label = String.fromCharCode(97 + i); // a, b, c, ...
+                const label = String.fromCharCode(97 + i); // a, b, c, …
+
+                let className = 'choice-btn';
+                if (isAnswered && isCorrect) className += ' correct';
+                else if (isAnswered && isSelected) className += ' wrong';
 
                 return html`
-                  <li
-                    class="choice ${isAnswered && isCorrect ? 'correct' : ''} ${isAnswered && isSelected && !isCorrect ? 'wrong' : ''}"
+                  <button
+                    class="${className}"
+                    ?disabled=${isAnswered}
                     @click=${() => this.handleAnswer(i)}
                   >
                     <strong>${label}.</strong> ${choice}
-                  </li>
+                  </button>
                 `;
               })}
-            </ul>
+            </div>
 
             ${this.selectedIndex !== null && this.currentIndex < this.flashcards.length - 1
               ? html`<button @click=${this.nextCard}>Next</button>`
               : this.selectedIndex !== null
-              ? html`<p><strong>Finished!</strong></p>`
+              ? html`<p><strong>Finished! 🎉</strong></p>`
               : null}
           </div>
         `;
