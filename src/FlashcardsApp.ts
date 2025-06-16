@@ -6,17 +6,19 @@ export class FlashcardsApp extends LitElement {
   static styles = css`
     :host {
       display: block;
-      padding: 1rem;
       font-family: sans-serif;
       width: 100dvw;
       height: 100dvh;
     }
 
     .header {
+      position: absolute; 
       display: flex;
+      width: calc(100% - 32px);
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 1rem;
+      padding: 1rem;
+      z-index: 10;
     }
 
     h2 {
@@ -40,11 +42,47 @@ export class FlashcardsApp extends LitElement {
       transition: fill 0.3s;
     }
 
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      color: var(--card-text);
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      width: 90%;
+      position: relative;
+    }
+
+    .modal h3 {
+      margin-top: 0;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.75rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: inherit;
+      cursor: pointer;
+    }
+
     .toggle-switch {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      margin: 1rem 0;
+      margin-top: 1.5rem;
       font-size: 0.9rem;
       user-select: none;
     }
@@ -89,11 +127,11 @@ export class FlashcardsApp extends LitElement {
       left: 50%;
       width: 100%;
       height: 100%;
-
       transform: translate(-50%, -50%) rotateX(-10deg);
       perspective: 1000px;
       perspective-origin: 50% 40%;
       transform-style: preserve-3d;
+      z-index: 0; 
     }
 
     .card {
@@ -104,7 +142,6 @@ export class FlashcardsApp extends LitElement {
       height: fit-content;
       max-width: 900px;
       min-height: 400px;
-
       background-color: var(--card-bg);
       color: var(--card-text);
       padding: 1rem;
@@ -185,11 +222,8 @@ export class FlashcardsApp extends LitElement {
 
   @state() private isLoading = true;
   @state() private showSettings = false;
-
   @state() private currentCardIndex = 0;
-
-  @state()
-  private selectedIndices: (number | null)[] = [];
+  @state() private selectedIndices: (number | null)[] = [];
 
   connectedCallback() {
     super.connectedCallback();
@@ -198,9 +232,7 @@ export class FlashcardsApp extends LitElement {
 
   firstUpdated() {
     const saved = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const theme = saved || (prefersDark ? "dark" : "light");
     document.documentElement.setAttribute("data-theme", theme);
   }
@@ -225,7 +257,6 @@ export class FlashcardsApp extends LitElement {
     const theme = checked ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
-    this.requestUpdate();
   }
 
   isDarkMode() {
@@ -256,17 +287,8 @@ export class FlashcardsApp extends LitElement {
     return html`
       <div class="header">
         <h2>Kartei</h2>
-        <button
-          @click=${this.toggleSettings}
-          class="settings-btn"
-          aria-label="Einstellungen"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-          >
+        <button @click=${this.toggleSettings} class="settings-btn" aria-label="Einstellungen">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
             <path
               d="m9.25 22l-.4-3.2q-.325-.125-.612-.3t-.563-.375L4.7 19.375l-2.75-4.75l2.575-1.95Q4.5 12.5 4.5 12.338v-.675q0-.163.025-.338L1.95 9.375l2.75-4.75l2.975 1.25q.275-.2.575-.375t.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3t.562.375l2.975-1.25l2.75 4.75l-2.575 1.95q.025.175.025.338v.674q0 .163-.05.338l2.575 1.95l-2.75 4.75l-2.95-1.25q-.275.2-.575.375t-.6.3l-.4 3.2zm2.8-6.5q1.45 0 2.475-1.025T15.55 12t-1.025-2.475T12.05 8.5q-1.475 0-2.488 1.025T8.55 12t1.013 2.475T12.05 15.5"
             />
@@ -276,17 +298,20 @@ export class FlashcardsApp extends LitElement {
 
       ${this.showSettings
         ? html`
-            <div class="card">
-              <p><strong>Settings:</strong></p>
-              <label class="toggle-switch">
-                <input
-                  type="checkbox"
-                  @change=${this.toggleTheme}
-                  ?checked=${this.isDarkMode()}
-                />
-                <span class="slider"></span>
-                <span>Dark Mode</span>
-              </label>
+            <div class="modal-backdrop" @click=${this.toggleSettings}>
+              <div class="modal" @click=${(e: Event) => e.stopPropagation()}>
+                <button class="close-btn" @click=${this.toggleSettings}>×</button>
+                <h3>Settings</h3>
+                <label class="toggle-switch">
+                  <input
+                    type="checkbox"
+                    @change=${this.toggleTheme}
+                    ?checked=${this.isDarkMode()}
+                  />
+                  <span class="slider"></span>
+                  <span>Dark Mode</span>
+                </label>
+              </div>
             </div>
           `
         : null}
@@ -299,17 +324,15 @@ export class FlashcardsApp extends LitElement {
 
           return html`
             <div
-              class="card ${cardIndex !== this.currentCardIndex ? 'blurred' : ''}"
+              class="card ${cardIndex !== this.currentCardIndex ? "blurred" : ""}"
               style="
-        --z: ${(cardIndex - this.currentCardIndex) * -1000}px;
-        z-index: ${zIndex};
-        opacity: ${isVisible ? 1 : 0};
-        pointer-events: ${isVisible ? "auto" : "none"};
-      "
+                --z: ${(cardIndex - this.currentCardIndex) * -1000}px;
+                z-index: ${zIndex};
+                opacity: ${isVisible ? 1 : 0};
+                pointer-events: ${isVisible ? "auto" : "none"};
+              "
             >
-              <p>
-                <strong>Question ${cardIndex + 1}:</strong> ${card.question}
-              </p>
+              <p><strong>Frage ${cardIndex + 1}:</strong> ${card.question}</p>
               <div class="choices">
                 ${card.choices.map((choice, i) => {
                   const isSelected = selected === i;
@@ -333,7 +356,7 @@ export class FlashcardsApp extends LitElement {
                 })}
               </div>
               ${selected !== null && cardIndex === this.currentCardIndex
-                ? html`<button @click=${this.nextCard}>Next Question</button>`
+                ? html`<button @click=${this.nextCard}>Nächste Frage</button>`
                 : null}
             </div>
           `;
@@ -344,9 +367,7 @@ export class FlashcardsApp extends LitElement {
         ? html`
             <div class="card" style="--z: 0; z-index: 999;">
               <h3>Alle Fragen abgeschlossen</h3>
-              <p>
-                Gut gemacht! Du kannst die Seite neu laden, um neu zu starten.
-              </p>
+              <p>Gut gemacht! Du kannst die Seite neu laden, um neu zu starten.</p>
             </div>
           `
         : null}
