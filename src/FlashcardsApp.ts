@@ -9,7 +9,7 @@ export class FlashcardsApp extends LitElement {
       padding: 1rem;
       font-family: sans-serif;
       width: 100dvw;
-      heigt: 100dvh;
+      height: 100dvh;
     }
 
     .header {
@@ -225,13 +225,14 @@ export class FlashcardsApp extends LitElement {
                 const isSelected = this.selectedIndex === i;
                 const isCorrect = i === card.correctIndex;
                 const isAnswered = this.selectedIndex !== null;
+                const label = String.fromCharCode(97 + i); // a, b, c, ...
 
                 return html`
                   <li
                     class="choice ${isAnswered && isCorrect ? 'correct' : ''} ${isAnswered && isSelected && !isCorrect ? 'wrong' : ''}"
                     @click=${() => this.handleAnswer(i)}
                   >
-                    ${choice}
+                    <strong>${label}.</strong> ${choice}
                   </li>
                 `;
               })}
@@ -240,7 +241,7 @@ export class FlashcardsApp extends LitElement {
             ${this.selectedIndex !== null && this.currentIndex < this.flashcards.length - 1
               ? html`<button @click=${this.nextCard}>Next</button>`
               : this.selectedIndex !== null
-              ? html`<p><strong>Finished! -- nice</strong></p>`
+              ? html`<p><strong>Finished!</strong></p>`
               : null}
           </div>
         `;
