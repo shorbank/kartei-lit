@@ -12,7 +12,7 @@ export class FlashcardsApp extends LitElement {
     }
 
     .header {
-      position: absolute; 
+      position: absolute;
       display: flex;
       width: calc(100% - 32px);
       justify-content: space-between;
@@ -34,7 +34,7 @@ export class FlashcardsApp extends LitElement {
     }
 
     .settings-btn:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: rgba(0, 0, 0, 0.2);
     }
 
     .settings-btn svg {
@@ -131,7 +131,7 @@ export class FlashcardsApp extends LitElement {
       perspective: 1000px;
       perspective-origin: 50% 40%;
       transform-style: preserve-3d;
-      z-index: 0; 
+      z-index: 0;
     }
 
     .card {
@@ -156,6 +156,28 @@ export class FlashcardsApp extends LitElement {
       filter: blur(4px);
       pointer-events: none;
       user-select: none;
+
+      div, p {
+        display: none; 
+      }
+    }
+
+    .card.postponed {
+      background-color: #fff8c4;
+      color: #5c4400;
+    }
+
+    [data-theme='dark'] .card.postponed {
+      background-color: #7a6700;
+      color: #fff8c4;
+    }
+
+    .card.postponed .choice-btn {
+      color: #5c4400;
+    }
+
+    [data-theme='dark'] .card.postponed .choice-btn {
+      color: #fff8c4;
     }
 
     .choices {
@@ -170,9 +192,9 @@ export class FlashcardsApp extends LitElement {
       width: 100%;
       padding: 0.75rem 1rem;
       font-size: 1rem;
-      background-color: var(--card-bg);
+      background-color: var(--choice-bg);
       color: var(--card-text);
-      border: 2px solid transparent;
+      border: 1px solid transparent);
       border-radius: 6px;
       text-align: left;
       cursor: pointer;
@@ -180,9 +202,10 @@ export class FlashcardsApp extends LitElement {
     }
 
     .choice-btn:hover:enabled {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: rgba(0, 0, 0, 0.2);
     }
 
+    .card.postponed .choice-btn.correct, 
     .choice-btn.correct {
       background-color: var(--correct-bg);
       color: var(--correct-text);
@@ -190,6 +213,7 @@ export class FlashcardsApp extends LitElement {
       border-color: var(--correct-text);
     }
 
+    .card.postponed .choice-btn.wrong,
     .choice-btn.wrong {
       background-color: #f8d7da;
       color: #721c24;
@@ -208,22 +232,29 @@ export class FlashcardsApp extends LitElement {
       cursor: pointer;
     }
 
-    button:hover {
-      background-color: #4338ca;
+    .action-btn {
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      width: 100%; 
+      max-width: 200px; 
     }
+
   `;
 
   @state()
   private flashcards: {
+    id: number;
     question: string;
     choices: string[];
     correctIndex: number;
+    userAnswer?: number | null;
+    postponed?: boolean;
   }[] = [];
 
   @state() private isLoading = true;
   @state() private showSettings = false;
   @state() private currentCardIndex = 0;
-  @state() private selectedIndices: (number | null)[] = [];
 
   connectedCallback() {
     super.connectedCallback();
@@ -243,8 +274,13 @@ export class FlashcardsApp extends LitElement {
         "https://fh-salzburg-3e27a-default-rtdb.europe-west1.firebasedatabase.app/flashcards.json"
       );
       const data = await res.json();
-      this.flashcards = data ? Object.values(data) : [];
-      this.selectedIndices = new Array(this.flashcards.length).fill(null);
+      this.flashcards = data
+        ? Object.values(data).map((card: any, index: number) => ({
+            ...card,
+            id: index + 1,
+            userAnswer: null,
+          }))
+        : [];
     } catch (e) {
       console.error("Fehler beim Laden der Flashcards:", e);
     } finally {
@@ -268,14 +304,35 @@ export class FlashcardsApp extends LitElement {
   }
 
   handleAnswer(cardIndex: number, choiceIndex: number) {
-    if (this.selectedIndices[cardIndex] !== null) return;
-    this.selectedIndices = [...this.selectedIndices];
-    this.selectedIndices[cardIndex] = choiceIndex;
+    const updatedCard = {
+      ...this.flashcards[cardIndex],
+      userAnswer: choiceIndex,
+    };
+    this.flashcards = [
+      ...this.flashcards.slice(0, cardIndex),
+      updatedCard,
+      ...this.flashcards.slice(cardIndex + 1),
+    ];
+  }
+
+  postponeCard(cardIndex: number) {
+    const postponedCard = {
+      ...this.flashcards[cardIndex],
+      postponed: true,
+    };
+    this.flashcards = [
+      ...this.flashcards.slice(0, cardIndex),
+      ...this.flashcards.slice(cardIndex + 1),
+      postponedCard,
+    ];
+    this.requestUpdate();
   }
 
   nextCard() {
-    if (this.currentCardIndex < this.flashcards.length) {
+    if (this.currentCardIndex < this.flashcards.length - 1) {
       this.currentCardIndex++;
+    } else {
+      this.currentCardIndex = this.flashcards.length;
     }
   }
 
@@ -318,13 +375,13 @@ export class FlashcardsApp extends LitElement {
 
       <div class="card-stack">
         ${this.flashcards.map((card, cardIndex) => {
-          const selected = this.selectedIndices[cardIndex];
-          const zIndex = this.flashcards.length - cardIndex;
+          const selected = card.userAnswer;
           const isVisible = cardIndex >= this.currentCardIndex;
+          const zIndex = this.flashcards.length - cardIndex;
 
           return html`
             <div
-              class="card ${cardIndex !== this.currentCardIndex ? "blurred" : ""}"
+              class="card ${cardIndex !== this.currentCardIndex ? "blurred" : ""} ${card.postponed ? "postponed" : ""}"
               style="
                 --z: ${(cardIndex - this.currentCardIndex) * -1000}px;
                 z-index: ${zIndex};
@@ -332,13 +389,12 @@ export class FlashcardsApp extends LitElement {
                 pointer-events: ${isVisible ? "auto" : "none"};
               "
             >
-              <p><strong>Frage ${cardIndex + 1}:</strong> ${card.question}</p>
+              <p><strong>Frage ${card.id}:</strong> ${card.question}</p>
               <div class="choices">
                 ${card.choices.map((choice, i) => {
                   const isSelected = selected === i;
                   const isCorrect = i === card.correctIndex;
                   const isAnswered = selected !== null;
-                  const label = String.fromCharCode(97 + i); // a, b, c, …
 
                   let className = "choice-btn";
                   if (isAnswered && isCorrect) className += " correct";
@@ -350,13 +406,18 @@ export class FlashcardsApp extends LitElement {
                       ?disabled=${isAnswered}
                       @click=${() => this.handleAnswer(cardIndex, i)}
                     >
-                      <strong>${label}.</strong> ${choice}
+                      <strong>${String.fromCharCode(97 + i)}.</strong> ${choice}
                     </button>
                   `;
                 })}
               </div>
+
               ${selected !== null && cardIndex === this.currentCardIndex
-                ? html`<button @click=${this.nextCard}>Nächste Frage</button>`
+                ? html`<button class="action-btn" @click=${this.nextCard}>Next Question</button>`
+                : null}
+
+              ${selected === null && cardIndex === this.currentCardIndex
+                ? html`<button class="action-btn" @click=${() => this.postponeCard(cardIndex)}>Skip Question</button>`
                 : null}
             </div>
           `;
