@@ -138,7 +138,7 @@ export class FlashcardsApp extends LitElement {
       left: 50%;
       margin-top: 20px;
       width: 100%;
-      height: 100%;
+      height: calc(100dvh - 20px);
       transform: translate(-50%, -50%) rotateX(-10deg);
       perspective: 1000px;
       perspective-origin: 50% 40%;
@@ -272,9 +272,25 @@ export class FlashcardsApp extends LitElement {
       max-width: 200px; 
     }
 
+    .progress-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background-color:rgba(224, 224, 224, 0.45);
+      z-index: 2;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: #4f46e5;
+      transition: width 0.3s ease;
+    }
+
   `;
 
- @state()
+  @state()
   private flashcards: {
     id: number;
     question: string;
@@ -378,6 +394,11 @@ export class FlashcardsApp extends LitElement {
       return html`<p>Lade Flashcards…</p>`;
     }
 
+    const progressPercent =
+      this.flashcards.length > 0
+        ? Math.min(((this.currentCardIndex + 1) / this.flashcards.length) * 100, 100)
+        : 0;
+
     return html`
       <div class="header">
         <div class="logo">
@@ -413,7 +434,7 @@ export class FlashcardsApp extends LitElement {
           `
         : null}
 
-      <div class="card-stack">
+            <div class="card-stack">
         ${this.flashcards.map((card, cardIndex) => {
           const selected = card.userAnswer;
           const isVisible = cardIndex >= this.currentCardIndex;
@@ -478,7 +499,7 @@ export class FlashcardsApp extends LitElement {
                           const isCorrect = userAnswer === correct;
                           return html`
                             <li>
-                              <strong>Frage ${card.id}:</strong> ${card.question}<br />
+                              <strong>Question ${card.id}:</strong> ${card.question}<br />
                               Gewählt: ${typeof userAnswer === "number"
                                 ? card.choices[userAnswer]
                                 : "–"}<br />
@@ -494,6 +515,11 @@ export class FlashcardsApp extends LitElement {
               </div>
             `
           : null}
+
+        <!-- ✅ Fortschrittsleiste -->
+        <div class="progress-container">
+          <div class="progress-bar" style="width: ${progressPercent}%;"></div>
+        </div>
       </div>
     `;
   }
