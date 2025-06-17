@@ -9,6 +9,7 @@ export class FlashcardsApp extends LitElement {
       font-family: sans-serif;
       width: 100dvw;
       height: 100dvh;
+      font-family: stinger-variable, sans-serif;
     }
 
     .header {
@@ -19,6 +20,16 @@ export class FlashcardsApp extends LitElement {
       align-items: center;
       padding: 1rem;
       z-index: 10;
+    }
+
+    .logo {
+      display: flex; 
+      gap: 0.75rem;
+    }
+
+    .kartei-logo {
+      width: 32px;
+      height: 32px;
     }
 
     h2 {
@@ -59,7 +70,7 @@ export class FlashcardsApp extends LitElement {
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
       max-width: 400px;
-      width: 90%;
+      width: 70%;
       position: relative;
     }
 
@@ -125,8 +136,9 @@ export class FlashcardsApp extends LitElement {
       position: fixed;
       top: 50%;
       left: 50%;
+      margin-top: 20px;
       width: 100%;
-      height: 100%;
+      height: calc(100dvh - 20px);
       transform: translate(-50%, -50%) rotateX(-10deg);
       perspective: 1000px;
       perspective-origin: 50% 40%;
@@ -136,24 +148,33 @@ export class FlashcardsApp extends LitElement {
 
     .card {
       position: absolute;
+      display: flex; 
+      flex-direction: column; 
       top: 50%;
       left: 50%;
-      width: 90%;
+      width: 80%;
       height: fit-content;
       max-width: 900px;
       min-height: 400px;
       background-color: var(--card-bg);
       color: var(--card-text);
-      padding: 1rem;
-      border-radius: 8px;
+      padding: 1.5rem 2rem;
+      border: 1.5px solid var(--card-text);
+      border-radius: 1.5rem;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       transform-style: preserve-3d;
       transform: translate3d(-50%, -50%, var(--z));
       transition: transform 0.4s ease, opacity 0.4s ease;
     }
 
+    @media only screen and (max-width: 600px) {
+      .card {
+        padding: 0.75rem 1.5rem;
+      }
+    }
+
     .card.blurred {
-      filter: blur(4px);
+      filter: blur(2px);
       pointer-events: none;
       user-select: none;
 
@@ -162,14 +183,28 @@ export class FlashcardsApp extends LitElement {
       }
     }
 
+    .card.final {
+      max-height: 500px; 
+      overflow: auto; 
+      justify-content: space-evenly; 
+    }
+
+    @media only screen and (min-height: 1000px) {
+      .card.final {
+        max-height: 900px; 
+      }
+    }
+
     .card.postponed {
       background-color: #fff8c4;
       color: #5c4400;
+      border: 1.5px solid #5c4400;
     }
 
     [data-theme='dark'] .card.postponed {
       background-color: #7a6700;
       color: #fff8c4;
+      border: 1.5px solid #5c4400;
     }
 
     .card.postponed .choice-btn {
@@ -178,6 +213,10 @@ export class FlashcardsApp extends LitElement {
 
     [data-theme='dark'] .card.postponed .choice-btn {
       color: #fff8c4;
+    }
+
+    .question {
+      font-size: 1.25rem; 
     }
 
     .choices {
@@ -191,11 +230,12 @@ export class FlashcardsApp extends LitElement {
       display: block;
       width: 100%;
       padding: 0.75rem 1rem;
-      font-size: 1rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.025em;
       background-color: var(--choice-bg);
       color: var(--card-text);
       border: 1px solid transparent);
-      border-radius: 6px;
+      border-radius: 0.75rem;
       text-align: left;
       cursor: pointer;
       transition: background-color 0.3s, transform 0.1s;
@@ -223,21 +263,103 @@ export class FlashcardsApp extends LitElement {
 
     button {
       margin-top: 1rem;
-      padding: 0.5rem 1rem;
+      padding: 0.75rem 1rem;
       font-size: 1rem;
       border: none;
-      border-radius: 4px;
+      border-radius: 0.75rem;
       background-color: #4f46e5;
       color: white;
       cursor: pointer;
+      font-family: stinger-variable, sans-serif;
     }
 
     .action-btn {
-      position: absolute;
-      bottom: 30px;
-      right: 30px;
+      margin-top: 4rem;
+      margin-bottom: 0.5rem; 
       width: 100%; 
-      max-width: 200px; 
+      max-width: 200px;
+      align-self: flex-end;  
+    }
+
+    .progress-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background-color:rgba(224, 224, 224, 0.45);
+      z-index: 2;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: #4f46e5;
+      transition: width 0.3s ease;
+    }
+
+    .circular-progress {
+      width: 120px;
+      height: 120px;
+      margin: 1.5rem auto;
+      display: block;
+    }
+
+    .circular-progress circle {
+      fill: none;
+      stroke-width: 12;
+      stroke-linecap: round;
+    }
+
+    .track {
+      stroke: #e6e6e6;
+    }
+
+    .progress {
+      stroke: #4f46e5;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .progress-text {
+      font-size: 1.25rem;
+      font-weight: bold;
+      fill: #4f46e5;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .summary-item {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .summary-item.correct {
+      background-color: #d1fae5; /* hellgrün */
+      color: #065f46;
+      border: 1px solid #065f46;
+    }
+
+    .summary-item.wrong {
+      background-color: #fee2e2; /* hellrot */
+      color: #991b1b;
+      border: 1px solid #991b1b;
+    }
+
+    .summary-details {
+      display: none;
+      margin-top: 0.5rem;
+    }
+
+    .summary-details.open {
+      display: block;
     }
 
   `;
@@ -255,6 +377,7 @@ export class FlashcardsApp extends LitElement {
   @state() private isLoading = true;
   @state() private showSettings = false;
   @state() private currentCardIndex = 0;
+  @state() private showResults = false;
 
   connectedCallback() {
     super.connectedCallback();
@@ -263,7 +386,9 @@ export class FlashcardsApp extends LitElement {
 
   firstUpdated() {
     const saved = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     const theme = saved || (prefersDark ? "dark" : "light");
     document.documentElement.setAttribute("data-theme", theme);
   }
@@ -336,16 +461,40 @@ export class FlashcardsApp extends LitElement {
     }
   }
 
+  showEvaluation() {
+    this.showResults = true;
+  }
+
   render() {
     if (this.isLoading) {
       return html`<p>Lade Flashcards…</p>`;
     }
 
+    const progressPercent =
+      this.flashcards.length > 0
+        ? Math.min(
+            ((this.currentCardIndex + 1) / this.flashcards.length) * 100,
+            100
+          )
+        : 0;
+
     return html`
       <div class="header">
-        <h2>Kartei</h2>
-        <button @click=${this.toggleSettings} class="settings-btn" aria-label="Einstellungen">
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
+        <div class="logo">
+          <img class="kartei-logo" src="/kartei-logo.webp" alt="Kartei Logo" />
+          <h2>Kartei</h2>
+        </div>
+        <button
+          @click=${this.toggleSettings}
+          class="settings-btn"
+          aria-label="Einstellungen"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+          >
             <path
               d="m9.25 22l-.4-3.2q-.325-.125-.612-.3t-.563-.375L4.7 19.375l-2.75-4.75l2.575-1.95Q4.5 12.5 4.5 12.338v-.675q0-.163.025-.338L1.95 9.375l2.75-4.75l2.975 1.25q.275-.2.575-.375t.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3t.562.375l2.975-1.25l2.75 4.75l-2.575 1.95q.025.175.025.338v.674q0 .163-.05.338l2.575 1.95l-2.75 4.75l-2.95-1.25q-.275.2-.575.375t-.6.3l-.4 3.2zm2.8-6.5q1.45 0 2.475-1.025T15.55 12t-1.025-2.475T12.05 8.5q-1.475 0-2.488 1.025T8.55 12t1.013 2.475T12.05 15.5"
             />
@@ -357,7 +506,9 @@ export class FlashcardsApp extends LitElement {
         ? html`
             <div class="modal-backdrop" @click=${this.toggleSettings}>
               <div class="modal" @click=${(e: Event) => e.stopPropagation()}>
-                <button class="close-btn" @click=${this.toggleSettings}>×</button>
+                <button class="close-btn" @click=${this.toggleSettings}>
+                  ×
+                </button>
                 <h3>Settings</h3>
                 <label class="toggle-switch">
                   <input
@@ -381,7 +532,9 @@ export class FlashcardsApp extends LitElement {
 
           return html`
             <div
-              class="card ${cardIndex !== this.currentCardIndex ? "blurred" : ""} ${card.postponed ? "postponed" : ""}"
+              class="card ${cardIndex !== this.currentCardIndex
+                ? "blurred"
+                : ""} ${card.postponed ? "postponed" : ""}"
               style="
                 --z: ${(cardIndex - this.currentCardIndex) * -1000}px;
                 z-index: ${zIndex};
@@ -389,7 +542,9 @@ export class FlashcardsApp extends LitElement {
                 pointer-events: ${isVisible ? "auto" : "none"};
               "
             >
-              <p><strong>Frage ${card.id}:</strong> ${card.question}</p>
+              <p class="question">
+                <strong>Question ${card.id}:</strong> ${card.question}
+              </p>
               <div class="choices">
                 ${card.choices.map((choice, i) => {
                   const isSelected = selected === i;
@@ -413,25 +568,115 @@ export class FlashcardsApp extends LitElement {
               </div>
 
               ${selected !== null && cardIndex === this.currentCardIndex
-                ? html`<button class="action-btn" @click=${this.nextCard}>Next Question</button>`
+                ? html`<button class="action-btn" @click=${this.nextCard}>
+                    Next Question
+                  </button>`
                 : null}
-
               ${selected === null && cardIndex === this.currentCardIndex
-                ? html`<button class="action-btn" @click=${() => this.postponeCard(cardIndex)}>Skip Question</button>`
+                ? html`<button
+                    class="action-btn"
+                    @click=${() => this.postponeCard(cardIndex)}
+                  >
+                    Skip Question
+                  </button>`
                 : null}
             </div>
           `;
         })}
-      </div>
+        ${this.currentCardIndex >= this.flashcards.length
+          ? html`
+              <div class="card final" style="--z: 0; z-index: 999;">
+                <h2>All questions answered</h2>
+                <p>Well done! If you want to see the correct answers to the questions asked, click on the corresponding question below the evaluation.</p> 
+                <p>You can reload the page to restart.</p>
 
-      ${this.currentCardIndex >= this.flashcards.length
-        ? html`
-            <div class="card" style="--z: 0; z-index: 999;">
-              <h3>Alle Fragen abgeschlossen</h3>
-              <p>Gut gemacht! Du kannst die Seite neu laden, um neu zu starten.</p>
-            </div>
-          `
-        : null}
+                ${!this.showResults
+                  ? html`<button @click=${this.showEvaluation}>
+                      Show evaluation
+                    </button>`
+                  : (() => {
+                      const correctCount = this.flashcards.filter(
+                        (card) => card.userAnswer === card.correctIndex
+                      ).length;
+                      const total = this.flashcards.length;
+                      const percent = Math.round((correctCount / total) * 100);
+                      const radius = 50;
+                      const circumference = 2 * Math.PI * radius;
+                      const offset = circumference * (1 - percent / 100);
+
+                      return html`
+                        <div>
+                          <svg class="circular-progress" viewBox="0 0 120 120">
+                            <circle
+                              class="track"
+                              cx="60"
+                              cy="60"
+                              r="${radius}"
+                            ></circle>
+                            <circle
+                              class="progress"
+                              cx="60"
+                              cy="60"
+                              r="${radius}"
+                              stroke-dasharray="${circumference}"
+                              stroke-dashoffset="${offset}"
+                            ></circle>
+                            <text x="60" y="65" class="progress-text">
+                              ${percent}%
+                            </text>
+                          </svg>
+                        </div>
+
+                        <ul>
+                          ${this.flashcards.map((card, index) => {
+                            const userAnswer = card.userAnswer;
+                            const correct = card.correctIndex;
+                            const isCorrect = userAnswer === correct;
+
+                            return html`
+                              <li
+                                class="summary-item ${isCorrect
+                                  ? "correct"
+                                  : "wrong"}"
+                                @click=${() => {
+                                  const toggled =
+                                    this.shadowRoot!.querySelector(
+                                      `#details-${index}`
+                                    ) as HTMLElement;
+                                  if (toggled) toggled.classList.toggle("open");
+                                }}
+                                style="cursor: pointer;"
+                              >
+                                <strong>Question ${card.id}:</strong>
+                                ${card.question}
+                                <div
+                                  id="details-${index}"
+                                  class="summary-details"
+                                >
+                                  <br />
+                                  You chose:
+                                  ${typeof userAnswer === "number"
+                                    ? card.choices[userAnswer]
+                                    : "–"}<br />
+                                  ${isCorrect
+                                    ? html`<b>Right!</b>`
+                                    : html`<b>Wrong.</b> Right answer:
+                                        ${card.choices[correct]}`}
+                                </div>
+                              </li>
+                            `;
+                          })}
+                        </ul>
+                      `;
+                    })()}
+              </div>
+            `
+          : null}
+
+        <div class="progress-container">
+          <div class="progress-bar" style="width: ${progressPercent}%;"></div>
+        </div>
+      </div>
     `;
   }
 }
