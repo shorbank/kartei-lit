@@ -59,7 +59,7 @@ export class FlashcardsApp extends LitElement {
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
       max-width: 400px;
-      width: 90%;
+      width: 70%;
       position: relative;
     }
 
@@ -138,7 +138,7 @@ export class FlashcardsApp extends LitElement {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 90%;
+      width: 80%;
       height: fit-content;
       max-width: 900px;
       min-height: 400px;
@@ -160,6 +160,11 @@ export class FlashcardsApp extends LitElement {
       div, p {
         display: none; 
       }
+    }
+
+    .card.final {
+      overflow-y: scroll; 
+      max-height: 500px; 
     }
 
     .card.postponed {
@@ -242,7 +247,7 @@ export class FlashcardsApp extends LitElement {
 
   `;
 
-  @state()
+ @state()
   private flashcards: {
     id: number;
     question: string;
@@ -255,6 +260,7 @@ export class FlashcardsApp extends LitElement {
   @state() private isLoading = true;
   @state() private showSettings = false;
   @state() private currentCardIndex = 0;
+  @state() private showResults = false;
 
   connectedCallback() {
     super.connectedCallback();
@@ -336,6 +342,10 @@ export class FlashcardsApp extends LitElement {
     }
   }
 
+  showEvaluation() {
+    this.showResults = true;
+  }
+
   render() {
     if (this.isLoading) {
       return html`<p>Lade Flashcards…</p>`;
@@ -389,7 +399,7 @@ export class FlashcardsApp extends LitElement {
                 pointer-events: ${isVisible ? "auto" : "none"};
               "
             >
-              <p><strong>Frage ${card.id}:</strong> ${card.question}</p>
+              <p><strong>Question ${card.id}:</strong> ${card.question}</p>
               <div class="choices">
                 ${card.choices.map((choice, i) => {
                   const isSelected = selected === i;
@@ -422,16 +432,39 @@ export class FlashcardsApp extends LitElement {
             </div>
           `;
         })}
-      </div>
 
-      ${this.currentCardIndex >= this.flashcards.length
-        ? html`
-            <div class="card" style="--z: 0; z-index: 999;">
-              <h3>Alle Fragen abgeschlossen</h3>
-              <p>Gut gemacht! Du kannst die Seite neu laden, um neu zu starten.</p>
-            </div>
-          `
-        : null}
+        ${this.currentCardIndex >= this.flashcards.length
+          ? html`
+              <div class="card final" style="--z: 0; z-index: 999;">
+                <h3>All questions answered</h3>
+                <p>Well done! You can reload the page to restart.</p>
+                ${!this.showResults
+                  ? html`<button @click=${this.showEvaluation}>Show evaluation</button>`
+                  : html`
+                      <ul>
+                        ${this.flashcards.map((card) => {
+                          const userAnswer = card.userAnswer;
+                          const correct = card.correctIndex;
+                          const isCorrect = userAnswer === correct;
+                          return html`
+                            <li>
+                              <strong>Frage ${card.id}:</strong> ${card.question}<br />
+                              Gewählt: ${typeof userAnswer === "number"
+                                ? card.choices[userAnswer]
+                                : "–"}<br />
+                              ${isCorrect
+                                ? html`<em>Right!</em>`
+                                : html`<em>Wrong.</em> Right answer: ${card.choices[correct]}`}
+                            </li>
+                            <br />
+                          `;
+                        })}
+                      </ul>
+                    `}
+              </div>
+            `
+          : null}
+      </div>
     `;
   }
 }
