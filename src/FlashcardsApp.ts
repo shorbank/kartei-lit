@@ -9,6 +9,7 @@ export class FlashcardsApp extends LitElement {
       font-family: sans-serif;
       width: 100dvw;
       height: 100dvh;
+      font-family: stinger-variable, sans-serif;
     }
 
     .header {
@@ -154,8 +155,9 @@ export class FlashcardsApp extends LitElement {
       min-height: 400px;
       background-color: var(--card-bg);
       color: var(--card-text);
-      padding: 1rem;
-      border-radius: 8px;
+      padding: 1.5rem 2rem;
+      border: 1.5px solid var(--card-text);
+      border-radius: 1.5rem;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       transform-style: preserve-3d;
       transform: translate3d(-50%, -50%, var(--z));
@@ -180,11 +182,13 @@ export class FlashcardsApp extends LitElement {
     .card.postponed {
       background-color: #fff8c4;
       color: #5c4400;
+      border: 1.5px solid #5c4400;
     }
 
     [data-theme='dark'] .card.postponed {
       background-color: #7a6700;
       color: #fff8c4;
+      border: 1.5px solid #5c4400;
     }
 
     .card.postponed .choice-btn {
@@ -193,6 +197,10 @@ export class FlashcardsApp extends LitElement {
 
     [data-theme='dark'] .card.postponed .choice-btn {
       color: #fff8c4;
+    }
+
+    .question {
+      font-size: 1.25rem; 
     }
 
     .choices {
@@ -206,7 +214,8 @@ export class FlashcardsApp extends LitElement {
       display: block;
       width: 100%;
       padding: 0.75rem 1rem;
-      font-size: 1rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.025em;
       background-color: var(--choice-bg);
       color: var(--card-text);
       border: 1px solid transparent);
@@ -238,13 +247,14 @@ export class FlashcardsApp extends LitElement {
 
     button {
       margin-top: 1rem;
-      padding: 0.5rem 1rem;
+      padding: 0.75rem 1rem;
       font-size: 1rem;
       border: none;
-      border-radius: 4px;
+      border-radius: 0.75rem;
       background-color: #4f46e5;
       color: white;
       cursor: pointer;
+      font-family: stinger-variable, sans-serif;
     }
 
     .action-btn {
@@ -412,7 +422,7 @@ export class FlashcardsApp extends LitElement {
                 pointer-events: ${isVisible ? "auto" : "none"};
               "
             >
-              <p><strong>Question ${card.id}:</strong> ${card.question}</p>
+              <p class="question"><strong>Question ${card.id}:</strong> ${card.question}</p>
               <div class="choices">
                 ${card.choices.map((choice, i) => {
                   const isSelected = selected === i;
