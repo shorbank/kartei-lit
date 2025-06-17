@@ -148,6 +148,8 @@ export class FlashcardsApp extends LitElement {
 
     .card {
       position: absolute;
+      display: flex; 
+      flex-direction: column; 
       top: 50%;
       left: 50%;
       width: 80%;
@@ -182,8 +184,15 @@ export class FlashcardsApp extends LitElement {
     }
 
     .card.final {
-      overflow-y: scroll; 
       max-height: 500px; 
+      overflow: auto; 
+      justify-content: space-evenly; 
+    }
+
+    @media only screen and (min-height: 1000px) {
+      .card.final {
+        max-height: 900px; 
+      }
     }
 
     .card.postponed {
@@ -265,11 +274,11 @@ export class FlashcardsApp extends LitElement {
     }
 
     .action-btn {
-      position: absolute;
-      bottom: 30px;
-      right: 30px;
+      margin-top: 4rem;
+      margin-bottom: 0.5rem; 
       width: 100%; 
-      max-width: 200px; 
+      max-width: 200px;
+      align-self: flex-end;  
     }
 
     .progress-container {
@@ -286,6 +295,71 @@ export class FlashcardsApp extends LitElement {
       height: 100%;
       background-color: #4f46e5;
       transition: width 0.3s ease;
+    }
+
+    .circular-progress {
+      width: 120px;
+      height: 120px;
+      margin: 1.5rem auto;
+      display: block;
+    }
+
+    .circular-progress circle {
+      fill: none;
+      stroke-width: 12;
+      stroke-linecap: round;
+    }
+
+    .track {
+      stroke: #e6e6e6;
+    }
+
+    .progress {
+      stroke: #4f46e5;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .progress-text {
+      font-size: 1.25rem;
+      font-weight: bold;
+      fill: #4f46e5;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .summary-item {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .summary-item.correct {
+      background-color: #d1fae5; /* hellgrün */
+      color: #065f46;
+      border: 1px solid #065f46;
+    }
+
+    .summary-item.wrong {
+      background-color: #fee2e2; /* hellrot */
+      color: #991b1b;
+      border: 1px solid #991b1b;
+    }
+
+    .summary-details {
+      display: none;
+      margin-top: 0.5rem;
+    }
+
+    .summary-details.open {
+      display: block;
     }
 
   `;
@@ -312,7 +386,9 @@ export class FlashcardsApp extends LitElement {
 
   firstUpdated() {
     const saved = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     const theme = saved || (prefersDark ? "dark" : "light");
     document.documentElement.setAttribute("data-theme", theme);
   }
@@ -396,7 +472,10 @@ export class FlashcardsApp extends LitElement {
 
     const progressPercent =
       this.flashcards.length > 0
-        ? Math.min(((this.currentCardIndex + 1) / this.flashcards.length) * 100, 100)
+        ? Math.min(
+            ((this.currentCardIndex + 1) / this.flashcards.length) * 100,
+            100
+          )
         : 0;
 
     return html`
@@ -405,8 +484,17 @@ export class FlashcardsApp extends LitElement {
           <img class="kartei-logo" src="/kartei-logo.webp" alt="Kartei Logo" />
           <h2>Kartei</h2>
         </div>
-        <button @click=${this.toggleSettings} class="settings-btn" aria-label="Einstellungen">
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
+        <button
+          @click=${this.toggleSettings}
+          class="settings-btn"
+          aria-label="Einstellungen"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+          >
             <path
               d="m9.25 22l-.4-3.2q-.325-.125-.612-.3t-.563-.375L4.7 19.375l-2.75-4.75l2.575-1.95Q4.5 12.5 4.5 12.338v-.675q0-.163.025-.338L1.95 9.375l2.75-4.75l2.975 1.25q.275-.2.575-.375t.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3t.562.375l2.975-1.25l2.75 4.75l-2.575 1.95q.025.175.025.338v.674q0 .163-.05.338l2.575 1.95l-2.75 4.75l-2.95-1.25q-.275.2-.575.375t-.6.3l-.4 3.2zm2.8-6.5q1.45 0 2.475-1.025T15.55 12t-1.025-2.475T12.05 8.5q-1.475 0-2.488 1.025T8.55 12t1.013 2.475T12.05 15.5"
             />
@@ -418,7 +506,9 @@ export class FlashcardsApp extends LitElement {
         ? html`
             <div class="modal-backdrop" @click=${this.toggleSettings}>
               <div class="modal" @click=${(e: Event) => e.stopPropagation()}>
-                <button class="close-btn" @click=${this.toggleSettings}>×</button>
+                <button class="close-btn" @click=${this.toggleSettings}>
+                  ×
+                </button>
                 <h3>Settings</h3>
                 <label class="toggle-switch">
                   <input
@@ -434,7 +524,7 @@ export class FlashcardsApp extends LitElement {
           `
         : null}
 
-            <div class="card-stack">
+      <div class="card-stack">
         ${this.flashcards.map((card, cardIndex) => {
           const selected = card.userAnswer;
           const isVisible = cardIndex >= this.currentCardIndex;
@@ -442,7 +532,9 @@ export class FlashcardsApp extends LitElement {
 
           return html`
             <div
-              class="card ${cardIndex !== this.currentCardIndex ? "blurred" : ""} ${card.postponed ? "postponed" : ""}"
+              class="card ${cardIndex !== this.currentCardIndex
+                ? "blurred"
+                : ""} ${card.postponed ? "postponed" : ""}"
               style="
                 --z: ${(cardIndex - this.currentCardIndex) * -1000}px;
                 z-index: ${zIndex};
@@ -450,7 +542,9 @@ export class FlashcardsApp extends LitElement {
                 pointer-events: ${isVisible ? "auto" : "none"};
               "
             >
-              <p class="question"><strong>Question ${card.id}:</strong> ${card.question}</p>
+              <p class="question">
+                <strong>Question ${card.id}:</strong> ${card.question}
+              </p>
               <div class="choices">
                 ${card.choices.map((choice, i) => {
                   const isSelected = selected === i;
@@ -474,49 +568,111 @@ export class FlashcardsApp extends LitElement {
               </div>
 
               ${selected !== null && cardIndex === this.currentCardIndex
-                ? html`<button class="action-btn" @click=${this.nextCard}>Next Question</button>`
+                ? html`<button class="action-btn" @click=${this.nextCard}>
+                    Next Question
+                  </button>`
                 : null}
-
               ${selected === null && cardIndex === this.currentCardIndex
-                ? html`<button class="action-btn" @click=${() => this.postponeCard(cardIndex)}>Skip Question</button>`
+                ? html`<button
+                    class="action-btn"
+                    @click=${() => this.postponeCard(cardIndex)}
+                  >
+                    Skip Question
+                  </button>`
                 : null}
             </div>
           `;
         })}
-
         ${this.currentCardIndex >= this.flashcards.length
           ? html`
               <div class="card final" style="--z: 0; z-index: 999;">
-                <h3>All questions answered</h3>
-                <p>Well done! You can reload the page to restart.</p>
+                <h2>All questions answered</h2>
+                <p>Well done! If you want to see the correct answers to the questions asked, click on the corresponding question below the evaluation.</p> 
+                <p>You can reload the page to restart.</p>
+
                 ${!this.showResults
-                  ? html`<button @click=${this.showEvaluation}>Show evaluation</button>`
-                  : html`
-                      <ul>
-                        ${this.flashcards.map((card) => {
-                          const userAnswer = card.userAnswer;
-                          const correct = card.correctIndex;
-                          const isCorrect = userAnswer === correct;
-                          return html`
-                            <li>
-                              <strong>Question ${card.id}:</strong> ${card.question}<br />
-                              Gewählt: ${typeof userAnswer === "number"
-                                ? card.choices[userAnswer]
-                                : "–"}<br />
-                              ${isCorrect
-                                ? html`<em>Right!</em>`
-                                : html`<em>Wrong.</em> Right answer: ${card.choices[correct]}`}
-                            </li>
-                            <br />
-                          `;
-                        })}
-                      </ul>
-                    `}
+                  ? html`<button @click=${this.showEvaluation}>
+                      Show evaluation
+                    </button>`
+                  : (() => {
+                      const correctCount = this.flashcards.filter(
+                        (card) => card.userAnswer === card.correctIndex
+                      ).length;
+                      const total = this.flashcards.length;
+                      const percent = Math.round((correctCount / total) * 100);
+                      const radius = 50;
+                      const circumference = 2 * Math.PI * radius;
+                      const offset = circumference * (1 - percent / 100);
+
+                      return html`
+                        <div>
+                          <svg class="circular-progress" viewBox="0 0 120 120">
+                            <circle
+                              class="track"
+                              cx="60"
+                              cy="60"
+                              r="${radius}"
+                            ></circle>
+                            <circle
+                              class="progress"
+                              cx="60"
+                              cy="60"
+                              r="${radius}"
+                              stroke-dasharray="${circumference}"
+                              stroke-dashoffset="${offset}"
+                            ></circle>
+                            <text x="60" y="65" class="progress-text">
+                              ${percent}%
+                            </text>
+                          </svg>
+                        </div>
+
+                        <ul>
+                          ${this.flashcards.map((card, index) => {
+                            const userAnswer = card.userAnswer;
+                            const correct = card.correctIndex;
+                            const isCorrect = userAnswer === correct;
+
+                            return html`
+                              <li
+                                class="summary-item ${isCorrect
+                                  ? "correct"
+                                  : "wrong"}"
+                                @click=${() => {
+                                  const toggled =
+                                    this.shadowRoot!.querySelector(
+                                      `#details-${index}`
+                                    ) as HTMLElement;
+                                  if (toggled) toggled.classList.toggle("open");
+                                }}
+                                style="cursor: pointer;"
+                              >
+                                <strong>Question ${card.id}:</strong>
+                                ${card.question}
+                                <div
+                                  id="details-${index}"
+                                  class="summary-details"
+                                >
+                                  <br />
+                                  You chose:
+                                  ${typeof userAnswer === "number"
+                                    ? card.choices[userAnswer]
+                                    : "–"}<br />
+                                  ${isCorrect
+                                    ? html`<b>Right!</b>`
+                                    : html`<b>Wrong.</b> Right answer:
+                                        ${card.choices[correct]}`}
+                                </div>
+                              </li>
+                            `;
+                          })}
+                        </ul>
+                      `;
+                    })()}
               </div>
             `
           : null}
 
-        <!-- ✅ Fortschrittsleiste -->
         <div class="progress-container">
           <div class="progress-bar" style="width: ${progressPercent}%;"></div>
         </div>
