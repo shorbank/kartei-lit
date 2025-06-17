@@ -2,6 +2,8 @@
 
 A simple flashcard app built with the Lit framework.
 
+🔗 **[Live Demo](https://kartei.shayan.studio/)**  
+
 ## Getting Started
 
 ```bash
@@ -11,17 +13,19 @@ npm run dev
 
 ## Features
 
-📚 One question at a time with multiple choices
+📚 Single-question view with multiple choices
 
-✅ Instant feedback (correct/wrong) on selection
+✅ Instant feedback after answering (correct/wrong highlighting)
 
-➡️ Smooth transition to the next card
+⏭️ Skip questions with "Postpone" option (postponed cards shown at the end)
 
-🌓 Toggleable dark mode (stored in localStorage)
+➡️ Animated 3D transitions between stacked cards
 
-⚙️ Modal-based settings overlay
+📊 Progress bar and circular results chart
 
-🎴 3D-stacked card layout using transform and perspective
+📋 Answer summary with expandable solution view
+
+⚙️ Settings modal with Dark mode toggle (auto-detect + user preference via localStorage)
 
 ## Tech Stack
 
