@@ -21,6 +21,16 @@ export class FlashcardsApp extends LitElement {
       z-index: 10;
     }
 
+    .logo {
+      display: flex; 
+      gap: 0.75rem;
+    }
+
+    .kartei-logo {
+      width: 32px;
+      height: 32px;
+    }
+
     h2 {
       margin: 0;
     }
@@ -153,7 +163,7 @@ export class FlashcardsApp extends LitElement {
     }
 
     .card.blurred {
-      filter: blur(4px);
+      filter: blur(2px);
       pointer-events: none;
       user-select: none;
 
@@ -353,7 +363,10 @@ export class FlashcardsApp extends LitElement {
 
     return html`
       <div class="header">
-        <h2>Kartei</h2>
+        <div class="logo">
+          <img class="kartei-logo" src="/kartei-logo.webp" alt="Kartei Logo" />
+          <h2>Kartei</h2>
+        </div>
         <button @click=${this.toggleSettings} class="settings-btn" aria-label="Einstellungen">
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
             <path
