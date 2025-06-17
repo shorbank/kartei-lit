@@ -136,6 +136,7 @@ export class FlashcardsApp extends LitElement {
       position: fixed;
       top: 50%;
       left: 50%;
+      margin-top: 20px;
       width: 100%;
       height: 100%;
       transform: translate(-50%, -50%) rotateX(-10deg);
@@ -162,6 +163,12 @@ export class FlashcardsApp extends LitElement {
       transform-style: preserve-3d;
       transform: translate3d(-50%, -50%, var(--z));
       transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .card {
+        padding: 0.75rem 1.5rem;
+      }
     }
 
     .card.blurred {
@@ -219,7 +226,7 @@ export class FlashcardsApp extends LitElement {
       background-color: var(--choice-bg);
       color: var(--card-text);
       border: 1px solid transparent);
-      border-radius: 6px;
+      border-radius: 0.75rem;
       text-align: left;
       cursor: pointer;
       transition: background-color 0.3s, transform 0.1s;
