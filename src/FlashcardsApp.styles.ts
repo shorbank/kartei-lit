@@ -74,7 +74,7 @@ export const flashcardsAppStyles = css`
     border: 1.5px solid #5c4400;
   }
 
-  [data-theme='dark'] .card.postponed {
+  [data-theme="dark"] .card.postponed {
     background-color: #7a6700;
     color: #fff8c4;
     border: 1.5px solid #5c4400;
@@ -84,7 +84,7 @@ export const flashcardsAppStyles = css`
     color: #5c4400;
   }
 
-  [data-theme='dark'] .card.postponed .choice-btn {
+  [data-theme="dark"] .card.postponed .choice-btn {
     color: #fff8c4;
   }
 
@@ -150,22 +150,6 @@ export const flashcardsAppStyles = css`
     width: 100%;
     max-width: 200px;
     align-self: flex-end;
-  }
-
-  .progress-container {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 8px;
-    background-color: rgba(224, 224, 224, 0.45);
-    z-index: 2;
-  }
-
-  .progress-bar {
-    height: 100%;
-    background-color: #4f46e5;
-    transition: width 0.3s ease;
   }
 
   .circular-progress {

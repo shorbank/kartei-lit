@@ -5,6 +5,7 @@ import { fetchFlashcards } from "./api";
 import { flashcardsAppStyles } from "./FlashcardsApp.styles";
 
 import "./components/AppNavbar";
+import "./components/ProgressBar"
 
 @customElement("flashcards-app")
 export class FlashcardsApp extends LitElement {
@@ -241,9 +242,7 @@ export class FlashcardsApp extends LitElement {
             `
           : null}
 
-        <div class="progress-container">
-          <div class="progress-bar" style="width: ${progressPercent}%;"></div>
-        </div>
+        <progress-bar .percent=${progressPercent}></progress-bar>
       </div>
     `;
   }
