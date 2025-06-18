@@ -1,5 +1,7 @@
 import { LitElement, html, css } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import type { Flashcard } from "./types";
+import { fetchFlashcards } from "./api";
 
 @customElement("flashcards-app")
 export class FlashcardsApp extends LitElement {
@@ -364,16 +366,7 @@ export class FlashcardsApp extends LitElement {
 
   `;
 
-  @state()
-  private flashcards: {
-    id: number;
-    question: string;
-    choices: string[];
-    correctIndex: number;
-    userAnswer?: number | null;
-    postponed?: boolean;
-  }[] = [];
-
+  @state() private flashcards: Flashcard[] = [];
   @state() private isLoading = true;
   @state() private showSettings = false;
   @state() private currentCardIndex = 0;
@@ -395,19 +388,9 @@ export class FlashcardsApp extends LitElement {
 
   async loadFlashcards() {
     try {
-      const res = await fetch(
-        "https://fh-salzburg-3e27a-default-rtdb.europe-west1.firebasedatabase.app/flashcards.json"
-      );
-      const data = await res.json();
-      this.flashcards = data
-        ? Object.values(data).map((card: any, index: number) => ({
-            ...card,
-            id: index + 1,
-            userAnswer: null,
-          }))
-        : [];
+      this.flashcards = await fetchFlashcards();
     } catch (e) {
-      console.error("Fehler beim Laden der Flashcards:", e);
+      console.error("Error when loading the flashcards:", e);
     } finally {
       this.isLoading = false;
     }
