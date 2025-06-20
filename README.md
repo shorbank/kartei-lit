@@ -27,6 +27,10 @@ npm run dev
 
 ⚙️ Settings modal with Dark mode toggle (auto-detect + user preference via localStorage)
 
+📱 Installable as PWA
+
+![App Screenshots](./screens.png)
+
 ## Tech Stack
 
 - Lit
