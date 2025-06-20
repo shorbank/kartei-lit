@@ -1,5 +1,5 @@
 import { LitElement, html, css } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 
 @customElement("app-navbar")
 export class AppNavbar extends LitElement {
@@ -126,7 +126,11 @@ export class AppNavbar extends LitElement {
     }
   `;
 
-  @property({ type: Boolean }) showSettings = false;
+  static properties = {
+    showSettings: { type: Boolean },
+  };
+
+  showSettings = false;
 
   private toggleSettings() {
     this.showSettings = !this.showSettings;
